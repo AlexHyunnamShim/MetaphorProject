@@ -1,0 +1,15 @@
+# Ignore node_modules directory
+node_modules/
+
+# Ignore .env files
+.env
+
+# Ignore .history directory
+.history/
+
+# Ignore build artifacts
+build/
+dist/
+coverage/
+*.log
+*.swp
