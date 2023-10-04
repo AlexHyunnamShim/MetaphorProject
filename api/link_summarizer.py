@@ -1,27 +1,26 @@
 from metaphor_python import Metaphor
+
+from transformers import pipeline
 from bs4 import BeautifulSoup
-import openai
 
 #summarize singular html file
 def summarize_html_content(document_id):
     #parse HTML using BeautifulSoup
-    metaphor = Metaphor("")
-    extracted_text = response = metaphor.get_contents([document_id]).contents[0].extract
-    #use chatgpt to generate summary
-    prompt = "Summarize the following text:\n" + extracted_text
-    openai.api_key = ""
-    response = openai.Completion.create(
-        engine="text-davinci-002",
-        prompt=prompt,
-        max_tokens=100
-    )
-    summarized_text = response.choices[0].text.strip()
+    metaphor = Metaphor("a670dd7f-2ae4-4f14-ac0c-55b6af7c0818")
+    text = metaphor.get_contents([document_id]).contents[0].extract
+    soup = BeautifulSoup(text, 'html.parser')
+    paragraphs = soup.find_all('p')  # Change this as needed to match the structure of the HTML page
+    extracted_text = ' '.join([p.get_text() for p in paragraphs])
+    #use huggingface summarizer to summarize text
+    summarizer = pipeline("summarization", model="t5-base", tokenizer="t5-base", framework="tf")
+    # Generate the summary
+    summarized_text = summarizer(extracted_text, max_length=150, min_length=30, do_sample=False)[0]['summary_text']
     return summarized_text
 
 
 #get related documents using metaphor api
 def get_related_documents(query: str):
-    metaphor = Metaphor("")
+    metaphor = Metaphor("a670dd7f-2ae4-4f14-ac0c-55b6af7c0818")
     documents = metaphor.search(
     query,
     num_results=2,
